@@ -2,6 +2,7 @@
 using FunWithGBFS.Services.Game;
 using FunWithGBFS.Services.GbfsAPI;
 using FunWithGBFS.Services.Questions;
+using FunWithGBFS.Services.Questions.Interfaces;
 
 internal class Program
 {
