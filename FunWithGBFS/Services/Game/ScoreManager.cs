@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FunWithGBFS.Services.Game
+{
+    public class ScoreManager
+    {
+        public int Score { get; private set; }
+
+        public event Action<int> ScoreUpdated;
+
+        public ScoreManager()
+        {
+            Score = 50; //TODO: start score > 0 and read from appsettings
+        }
+
+        public void AddPoints(int points)
+        {
+            Score += points;
+            ScoreUpdated?.Invoke(Score);
+        }
+
+        public void SubtractPoints(int points)
+        {
+            Score -= points;
+            ScoreUpdated?.Invoke(Score);
+        }
+    }
+}
