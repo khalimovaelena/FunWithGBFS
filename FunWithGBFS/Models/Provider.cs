@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FunWithGBFS
+namespace FunWithGBFS.Models
 {
     public class Provider
     {
-        public string City { get; set; }
+        public string Name { get; set; }
         public string GbfsUrl { get; set; }
 
-        public Provider(string city, string gbfsUrl)
+        public Provider(string name, string gbfsUrl)
         {
-            City = city;
+            Name = name;
             GbfsUrl = gbfsUrl;
         }
     }

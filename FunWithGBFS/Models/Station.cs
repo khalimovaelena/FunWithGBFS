@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FunWithGBFS
+namespace FunWithGBFS.Models
 {
+    //TODO: move to Models folder + separate classes into their own files
     public class Station
     {
         public string Id { get; set; }

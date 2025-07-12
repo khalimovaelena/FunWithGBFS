@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FunWithGBFS.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,26 +7,25 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Collections.Specialized.BitVector32;
 
-namespace FunWithGBFS
+namespace FunWithGBFS.Services.GbfsAPI
 {
     //TODO: implement interface
     public class GbfsFetcher
     {
         private static readonly HttpClient Http = new();
 
-        public static async Task<List<Station>> FetchGbfsData(Provider provider)
+        public static async Task<List<Station>> FetchStations(Provider provider)
         {
             try
             {
-                // Fetch main GBFS index
                 string gbfsJson = await Http.GetStringAsync(provider.GbfsUrl);
                 using JsonDocument gbfsDoc = JsonDocument.Parse(gbfsJson);
 
-                //TODO: mapper + handle errors
-                var feeds = gbfsDoc.RootElement
-                    .GetProperty("data")
-                    .EnumerateObject().First().Value
-                    .GetProperty("feeds");
+                if (!GbfsFetcherHelper.TryGetFeeds(gbfsDoc, out var feeds))
+                {
+                    Console.WriteLine("Feeds not found or invalid format.");
+                    return new List<Station>();
+                }
 
                 string? stationInfoUrl = null;
                 string? stationStatusUrl = null;
@@ -78,7 +78,7 @@ namespace FunWithGBFS
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error fetching data for {provider.City}: {ex.Message}");
+                Console.WriteLine($"Error fetching data for {provider.Name}: {ex.Message}");
                 return new List<Station>();
             }
         }
