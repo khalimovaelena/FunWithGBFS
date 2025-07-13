@@ -3,13 +3,18 @@ using FunWithGBFS.Services.Game;
 using FunWithGBFS.Services.GbfsAPI;
 using FunWithGBFS.Services.Questions;
 using FunWithGBFS.Services.Questions.Interfaces;
+using FunWithGBFS.Services.Users;
+using FunWithGBFS.Services.Users.Interfaces;
 
 internal class Program
 {
     //TODO: try-catch for all classes
     public static async Task Main(string[] args)
     {
-        //TODO: appsettings
+        //1. Read providers
+        //TODO: separate service
+        
+        //TODO: read providers from file, filepath is in appsettings
         var providers = new List<Provider>
             {
                 new Provider("BlueBike_BE", "https://api.delijn.be/gbfs/gbfs.json"),
@@ -34,81 +39,60 @@ internal class Program
             }
         }
 
-        // Instantiate generators
-        List<IQuestionGenerator> generators = new List<IQuestionGenerator>
+        //2. Register or login user
+        IUserService userService = new FileUserService();
+        User? currentUser = null;
+
+        while (currentUser == null)
+        {
+            Console.WriteLine("1. Register\n2. Login");
+            var choice = Console.ReadLine();
+
+            Console.Write("Username: ");
+            var username = Console.ReadLine();
+            Console.Write("Password: ");
+            var password = Console.ReadLine();
+
+            try
+            {
+                currentUser = choice == "1"
+                    ? userService.Register(username!, password!)
+                    : userService.Login(username!, password!);
+
+                if (currentUser == null)
+                {
+                    Console.WriteLine("Login failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        Console.WriteLine($"\nWelcome, {currentUser.Username}!");
+        Console.WriteLine("Starting game...\n");
+
+        //3. Generate questions
+        //TODO: separate service
+        List<IQuestionGenerator> questions = new List<IQuestionGenerator>
         {
             new AverageBikeAvailabilityQuestionGenerator(),
             new MaxBikeStationQuestionGenerator()
         };
 
-        var scoreManager = new ScoreManager();
-        var gameTimer = new GameTimer(60); //TODO: appsetting
-
-        gameTimer.TimeExpired += () =>
-        {
-            Console.WriteLine("\nTime's up! The game is over.");
-            Environment.Exit(0); // End the game when time is up
-        };
-
-        // Score display update
-        scoreManager.ScoreUpdated += score =>
-        {
-            Console.Clear();
-            Console.WriteLine($"Current Score: {score}");
-        };
-
-        // Start the timer in the background
-        var timerTask = gameTimer.StartAsync();
-
         // Game loop
-        //TODO: separate classes for game logic
-        Random random = new();
-        for (int i = 0; i < 3; i++) //TODO: appsettings for number of questions
+        var gameEngine = new GameEngine(questions, stations, numberOfQuestions: 5);
+        var score = await gameEngine.RunGameAsync();
+
+        // Save result
+        currentUser.Attempts.Add(new GameAttempt { Score = score });
+        userService.SaveUser(currentUser);
+
+        Console.WriteLine("\nPrevious attempts:");
+        foreach (var attempt in currentUser.Attempts)
         {
-            var generator = generators[random.Next(generators.Count)];
-            var question = generator.Generate(stations);
-
-            Console.Clear();
-            Console.WriteLine($"Time remaining: {gameTimer.RemainingTime} seconds");
-            Console.WriteLine($"Current Score: {scoreManager.Score}\n");
-            Console.WriteLine($"Question {i + 1}: {question.Text}");
-
-            for (int j = 0; j < question.Options.Count; j++)
-            {
-                Console.WriteLine($"{j + 1}. {question.Options[j]}");
-            }
-
-            // Prompt for user input and wait for response
-            string answer = null;
-
-            while (string.IsNullOrEmpty(answer))
-            {
-                Console.WriteLine("\nEnter your answer (1, 2, 3, etc.):");
-                answer = Console.ReadLine();
-            }
-
-            // Check answer (this part can be customized based on how you validate answers)
-            if (int.TryParse(answer, out var option) && option >= 1 && option <= question.Options.Count)
-            {
-                int correctAnswerIndex = question.CorrectAnswerIndex;
-                if (option - 1 == correctAnswerIndex)
-                {
-                    scoreManager.AddPoints(50);  // Correct answer, add points //TODO: appsettings
-                }
-                else
-                {
-                    scoreManager.SubtractPoints(20);  // Wrong answer, subtract points //TODO: appsettings
-                }
-            }
-
-            if (scoreManager.Score <= 0) // End game if the score is zero or negative
-            {
-                Console.WriteLine("Game Over: You lost all your points.");
-                break;
-            }
+            Console.WriteLine($"{attempt.Timestamp}: {attempt.Score} points");
         }
-
-        // Wait for the timer to finish if it hasn't already
-        await timerTask;
     }
 }

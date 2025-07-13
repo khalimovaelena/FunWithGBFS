@@ -22,20 +22,26 @@ namespace FunWithGBFS.Services.Game
 
         public async Task StartAsync()
         {
-            while (RemainingTime > 0)
+            try
             {
-                await Task.Delay(1000);  // Wait for 1 second
-                RemainingTime--;  // Decrease remaining time by 1 second
-
-                // Stop if the game timer is manually canceled
-                if (_cts.Token.IsCancellationRequested)
+                while (RemainingTime > 0)
                 {
-                    break;
+                    if (_cts.Token.IsCancellationRequested)
+                        return;
+
+                    await Task.Delay(1000); // No cancellation token — we check manually
+                    RemainingTime--;
+                }
+
+                if (!_cts.Token.IsCancellationRequested)
+                {
+                    TimeExpired?.Invoke();
                 }
             }
-
-            // When time expires, trigger the event to notify the game logic
-            TimeExpired?.Invoke();
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in timer: {ex.Message}");
+            }
         }
 
         public void Stop()

@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FunWithGBFS.Models
+{
+    public class GameAttempt
+    {
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public int Score { get; set; }
+    }
+}
