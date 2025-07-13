@@ -12,7 +12,12 @@ namespace FunWithGBFS.Services.Users
 {
     public class FileUserService: IUserService
     {
-        private readonly string _filePath = "users.json"; //TODO: appsettings for path
+        private readonly string _filePath;
+
+        public FileUserService(string filePath)
+        {
+            _filePath = filePath;
+        }
 
         public List<User> GetAllUsers()
         {

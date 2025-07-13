@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "BlueBike_BE",
+    "GbfsUrl": "https://api.delijn.be/gbfs/gbfs.json"
+  },
+  {
+    "Name": "Check_Rotterdam",
+    "GbfsUrl": "https://api.ridecheck.app/gbfs/v3/rotterdam/gbfs.json"
+  },
+  {
+    "Name": "Felyx_Delft",
+    "GbfsUrl": "https://maas.zeus.cooltra.com/gbfs/delft/3.0/en/gbfs.json"
+  }
+]

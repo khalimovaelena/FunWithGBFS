@@ -14,17 +14,18 @@ namespace FunWithGBFS.Services.Game
         private readonly List<Station> _stations;
         private readonly ScoreManager _scoreManager;
         private readonly GameTimer _gameTimer;
-        private readonly int _numberOfQuestions;
+        private readonly GameSettings _gameSettings;
 
         private bool _timeExpired;
 
-        public GameEngine(List<IQuestionGenerator> questions, List<Station> stations, int numberOfQuestions = 5)
+        public GameEngine(List<IQuestionGenerator> questions, List<Station> stations, GameSettings gameSettings)
         {
             _questions = questions;
             _stations = stations;
-            _scoreManager = new ScoreManager();
-            _gameTimer = new GameTimer(60); // 60 seconds total
-            _numberOfQuestions = numberOfQuestions;
+            _gameSettings = gameSettings;
+
+            _scoreManager = new ScoreManager(_gameSettings.InitialScore);
+            _gameTimer = new GameTimer(_gameSettings.GameDurationSeconds);
 
             // Subscribe to the timer's expiration event
             _gameTimer.TimeExpired += OnTimeExpired;
@@ -41,7 +42,7 @@ namespace FunWithGBFS.Services.Game
             int questionIndex = 0;
             var random = new Random();
 
-            while (!_timeExpired && questionIndex < _numberOfQuestions)
+            while (!_timeExpired && questionIndex < _gameSettings.NumberOfQuestions)
             {
                 var generator = _questions[random.Next(_questions.Count)];
                 var question = generator.Generate(_stations);
@@ -75,11 +76,11 @@ namespace FunWithGBFS.Services.Game
                 {
                     if (option - 1 == question.CorrectAnswerIndex)
                     {
-                        _scoreManager.AddPoints(50);
+                        _scoreManager.AddPoints(_gameSettings.PointsPerCorrectAnswer);
                     }
                     else
                     {
-                        _scoreManager.SubtractPoints(20);
+                        _scoreManager.SubtractPoints(_gameSettings.PointsPerWrongAnswer);
                     }
                 }
 
@@ -93,7 +94,7 @@ namespace FunWithGBFS.Services.Game
                 questionIndex++;
             }
 
-            if (questionIndex >= _numberOfQuestions && !_timeExpired)
+            if (questionIndex >= _gameSettings.NumberOfQuestions && !_timeExpired)
             {
                 Console.WriteLine("Congrats! You answered all questions!");
                 _gameTimer.Stop(); // Stop timer early

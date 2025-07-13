@@ -1,26 +1,28 @@
-﻿using FunWithGBFS.Models;
+﻿using FunWithGBFS;
+using FunWithGBFS.Models;
 using FunWithGBFS.Services.Game;
 using FunWithGBFS.Services.GbfsAPI;
 using FunWithGBFS.Services.Questions;
 using FunWithGBFS.Services.Questions.Interfaces;
 using FunWithGBFS.Services.Users;
 using FunWithGBFS.Services.Users.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 internal class Program
 {
     //TODO: try-catch for all classes
     public static async Task Main(string[] args)
     {
+        //0. Read configuration
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
+
+        // Use the service provider to get the configuration
+        var gameSettings = config.GetSection("GameSettings").Get<GameSettings>();
+
         //1. Read providers
-        //TODO: separate service
-        
-        //TODO: read providers from file, filepath is in appsettings
-        var providers = new List<Provider>
-            {
-                new Provider("BlueBike_BE", "https://api.delijn.be/gbfs/gbfs.json"),
-                new Provider("Check_Rotterdam", "https://api.ridecheck.app/gbfs/v3/rotterdam/gbfs.json"),
-                new Provider("Felyx_Delft", "https://maas.zeus.cooltra.com/gbfs/delft/3.0/en/gbfs.json")
-            };
+        var providers = ProvidersLoader.LoadProviders(gameSettings.ProvidersFile);
 
         var stations = new List<Station>();
 
@@ -40,7 +42,7 @@ internal class Program
         }
 
         //2. Register or login user
-        IUserService userService = new FileUserService();
+        IUserService userService = new FileUserService(gameSettings.UsersFile);
         User? currentUser = null;
 
         while (currentUser == null)
@@ -82,7 +84,7 @@ internal class Program
         };
 
         // Game loop
-        var gameEngine = new GameEngine(questions, stations, numberOfQuestions: 5);
+        var gameEngine = new GameEngine(questions, stations, gameSettings);
         var score = await gameEngine.RunGameAsync();
 
         // Save result

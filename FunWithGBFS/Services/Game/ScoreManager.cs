@@ -10,11 +10,11 @@ namespace FunWithGBFS.Services.Game
     {
         public int Score { get; private set; }
 
-        public event Action<int> ScoreUpdated;
+        public event Action<int> ScoreUpdated; //TODO: do we need it?
 
-        public ScoreManager()
+        public ScoreManager(int initialScore)
         {
-            Score = 50; //TODO: start score > 0 and read from appsettings
+            Score = initialScore;
         }
 
         public void AddPoints(int points)
