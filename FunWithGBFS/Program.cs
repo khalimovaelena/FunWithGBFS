@@ -7,19 +7,28 @@ using FunWithGBFS.Services.Questions.Interfaces;
 using FunWithGBFS.Services.Users;
 using FunWithGBFS.Services.Users.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
-internal class Program
+public class Program
 {
     //TODO: try-catch for all classes
     public static async Task Main(string[] args)
     {
-        //0. Read configuration
+        //0. Read configuration + initiate logger
         var config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
         // Use the service provider to get the configuration
         var gameSettings = config.GetSection("GameSettings").Get<GameSettings>();
+
+        var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+        });
+
+        ILogger<Program> logger = loggerFactory.CreateLogger<Program>();
+        logger.LogInformation("Game starting...");
 
         //1. Read providers
         var providers = ProvidersLoader.LoadProviders(gameSettings.ProvidersFile);
