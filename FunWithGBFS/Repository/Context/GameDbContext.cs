@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FunWithGBFS.Repository
+namespace FunWithGBFS.Repository.Context
 {
     public class GameDbContext: DbContext
     {
