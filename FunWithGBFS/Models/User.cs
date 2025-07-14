@@ -8,8 +8,9 @@ namespace FunWithGBFS.Models
 {
     public class User
     {
-        public string Username { get; set; }
-        public string PasswordHash { get; set; }
+        public int Id { get; set; }
+        public string Username { get; set; } = default!;
+        public string PasswordHash { get; set; } = default!;
         public List<GameAttempt> Attempts { get; set; } = new();
     }
 }
