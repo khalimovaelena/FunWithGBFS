@@ -1,4 +1,5 @@
 ﻿using FunWithGBFS.Core.Models;
+using FunWithGBFS.Presentation.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,6 @@ namespace FunWithGBFS.Infrastructure.Gbfs
         {
             if (!File.Exists(filePath))
             {
-                Console.WriteLine($"Providers file not found: {filePath}");
                 return new List<Provider>();
             }
 
