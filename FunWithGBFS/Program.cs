@@ -117,5 +117,9 @@ public class Program
         {
             Console.WriteLine($"{attempt.Timestamp}: {attempt.Score} points");
         }
+
+        Console.WriteLine("Game over. Thank you for playing!");
+        Console.WriteLine("Press any key to exit...");
+        Console.ReadKey();
     }
 }

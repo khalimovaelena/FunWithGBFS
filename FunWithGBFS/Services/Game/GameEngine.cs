@@ -42,6 +42,8 @@ namespace FunWithGBFS.Services.Game
             int questionIndex = 0;
             var random = new Random();
 
+            using var cts = new CancellationTokenSource();
+
             while (!_timeExpired && questionIndex < _gameSettings.NumberOfQuestions)
             {
                 var generator = _questions[random.Next(_questions.Count)];
@@ -57,22 +59,20 @@ namespace FunWithGBFS.Services.Game
                     Console.WriteLine($"{j + 1}. {question.Options[j]}");
                 }
 
-                string answer = null;
+                Console.WriteLine("Enter your answer (1, 2, 3, etc.):");
 
-                while (string.IsNullOrWhiteSpace(answer) && !_timeExpired)
-                {
-                    Console.WriteLine("Enter your answer (1, 2, 3, etc.):");
-                    answer = Console.ReadLine();
-                }
+                var inputTask = ReadLineWithTimeout(cts.Token);
+                var completedTask = await Task.WhenAny(inputTask, timerTask);
 
-                // If timer expired while waiting for input
-                if (_timeExpired)
+                if (_timeExpired || completedTask == timerTask)
                 {
-                    Console.WriteLine("Game over: you are out of time");
+                    Console.WriteLine("Game over: You ran out of time.");
                     break;
                 }
 
-                if (int.TryParse(answer, out var option) && option >= 1 && option <= question.Options.Count)
+                var answer = inputTask.Result;
+
+                if (int.TryParse(answer, out var option))
                 {
                     if (option - 1 == question.CorrectAnswerIndex)
                     {
@@ -87,7 +87,7 @@ namespace FunWithGBFS.Services.Game
                 if (_scoreManager.Score <= 0)
                 {
                     Console.WriteLine("Game Over: You lost all your points.");
-                    _gameTimer.Stop(); // Stop timer early
+                    _gameTimer.Stop(); // Stop the timer early
                     break;
                 }
 
@@ -97,7 +97,7 @@ namespace FunWithGBFS.Services.Game
             if (questionIndex >= _gameSettings.NumberOfQuestions && !_timeExpired)
             {
                 Console.WriteLine("Congrats! You answered all questions!");
-                _gameTimer.Stop(); // Stop timer early
+                _gameTimer.Stop(); // Stop the timer early
             }
 
             await timerTask;
@@ -105,6 +105,22 @@ namespace FunWithGBFS.Services.Game
             Console.WriteLine($"\nFinal Score: {_scoreManager.Score}");
 
             return _scoreManager.Score;
+        }
+
+
+        private async Task<string?> ReadLineWithTimeout(CancellationToken token)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    return Console.ReadLine();
+                }
+                catch
+                {
+                    return null;
+                }
+            }, token);
         }
     }
 }
