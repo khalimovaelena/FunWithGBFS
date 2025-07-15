@@ -1,82 +1,101 @@
-﻿using FunWithGBFS.Presentation.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FunWithGBFS.Application.Game.Interfaces;
+using FunWithGBFS.Presentation.Interfaces;
 
 namespace FunWithGBFS.Application.Game
 {
-    public class GameTimer
+    public class GameTimer : IGameTimer
     {
-        //TODO: add flag that timer is running to prevent starting the same timer multiple times
         private readonly int _durationInSeconds;
         private readonly IUserInteraction _userInteraction;
+        private readonly object _lock = new();
 
         private int _remainingTime;
-        public int RemainingTime => Volatile.Read(ref _remainingTime);
         private CancellationTokenSource _cts;
+        private bool _isRunning;
+
+        public int RemainingTime => Volatile.Read(ref _remainingTime);
 
         public event Action TimeExpired;
-        //TODO: add event TimeTicked so UI can update the remaining time on display
+        public event Action<int> TimeTicked;
 
         public GameTimer(int durationInSeconds, IUserInteraction userInteraction)
         {
             _durationInSeconds = durationInSeconds;
             _userInteraction = userInteraction ?? throw new ArgumentNullException(nameof(userInteraction));
-
-            _remainingTime = durationInSeconds;  // Initialize the remaining time with the duration
+            _remainingTime = durationInSeconds;
         }
 
         public async Task StartAsync()
         {
+            lock (_lock)
+            {
+                if (_isRunning)
+                {
+                    return;
+                }
+
+                _isRunning = true;
+                _cts = new CancellationTokenSource();
+                Interlocked.Exchange(ref _remainingTime, _durationInSeconds);
+            }
+
             try
             {
-                if (_cts == null)
-                { 
-                    _cts = new CancellationTokenSource();
-                }
-
-                if (_remainingTime <= 0)
+                while (RemainingTime > 0)
                 {
-                    Interlocked.Exchange(ref _remainingTime, _durationInSeconds);
-                }
+                    TimeTicked?.Invoke(RemainingTime);
 
-                while (_remainingTime > 0)
-                {
-                    if (_cts.Token.IsCancellationRequested)
+                    await Task.Delay(1000);
+
+                    lock (_lock)
                     {
-                        return;
+                        if (_cts == null || _cts.Token.IsCancellationRequested)
+                        {
+                            return;
+                        }
                     }
 
-                    // No cancellation token in Delay — we check manually to avoid throwing an exception when the timer is cancelled, because it's normal behavior and not and exception
-                    await Task.Delay(1000);
                     Interlocked.Decrement(ref _remainingTime);
                 }
 
-                if (!_cts.Token.IsCancellationRequested)
+                lock (_lock)
                 {
-                    TimeExpired?.Invoke();
+                    if (_cts != null && !_cts.Token.IsCancellationRequested)
+                    {
+                        TimeExpired?.Invoke();
+                    }
                 }
             }
             catch (Exception ex)
             {
                 _userInteraction.ShowError($"Error in timer: {ex.Message}");
             }
+            finally
+            {
+                lock (_lock)
+                {
+                    _cts?.Dispose();
+                    _cts = null;
+                    _isRunning = false;
+                }
+            }
         }
 
         public void Stop()
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = null;
+            lock (_lock)
+            {
+                _cts?.Cancel();
+                _cts?.Dispose();
+                _cts = null;
+                _isRunning = false;
+            }
         }
 
         public void Reset()
         {
             Stop();
-            _cts = new CancellationTokenSource();
-            Interlocked.Exchange(ref _remainingTime, _durationInSeconds);  // Reset the timer to the initial duration
+            Interlocked.Exchange(ref _remainingTime, _durationInSeconds);
         }
     }
 }

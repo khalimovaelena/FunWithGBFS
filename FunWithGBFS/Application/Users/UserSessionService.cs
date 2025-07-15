@@ -1,11 +1,6 @@
 ﻿using FunWithGBFS.Application.Users.Interfaces;
 using FunWithGBFS.Core.Models;
 using FunWithGBFS.Presentation.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FunWithGBFS.Application.Users
 {

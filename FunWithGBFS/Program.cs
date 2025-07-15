@@ -2,25 +2,14 @@
 using FunWithGBFS.Application.Questions;
 using FunWithGBFS.Application.Questions.Interfaces;
 using FunWithGBFS.Application.Stations;
-using FunWithGBFS.Application.Stations.Interfaces;
 using FunWithGBFS.Application.Users;
 using FunWithGBFS.Application.Users.Interfaces;
 using FunWithGBFS.Core.Models;
 using FunWithGBFS.Infrastructure.Gbfs;
-using FunWithGBFS.Infrastructure.Http;
-using FunWithGBFS.Infrastructure.Http.Interfaces;
 using FunWithGBFS.Persistence.Context;
-using FunWithGBFS.Persistence.Repository;
-using FunWithGBFS.Persistence.Repository.Interfaces;
-using FunWithGBFS.Presentation.Console;
 using FunWithGBFS.Presentation.Interfaces;
 using FunWithGBFS.Startup;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Http;
-using Microsoft.Extensions.Logging;
 
 public class Program
 {

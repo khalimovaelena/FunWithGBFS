@@ -1,11 +1,6 @@
 ﻿using FunWithGBFS.Application.Questions.Interfaces;
 using FunWithGBFS.Core.Models;
 using FunWithGBFS.Presentation.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FunWithGBFS.Application.Game
 {
@@ -36,11 +31,18 @@ namespace FunWithGBFS.Application.Game
 
             // Subscribe to the timer's expiration event
             _gameTimer.TimeExpired += OnTimeExpired;
+            //_gameTimer.TimeTicked += OnTimeTicked;
         }
 
         private void OnTimeExpired()
         {
             _timeExpired = true;
+        }
+
+        //TODO: use it if UI is not Console
+        private void OnTimeTicked(int remainingTime)
+        {
+            _userInteraction.ShowMessage($"Time remaining: {remainingTime} seconds");
         }
 
         public async Task<int> RunGameAsync()

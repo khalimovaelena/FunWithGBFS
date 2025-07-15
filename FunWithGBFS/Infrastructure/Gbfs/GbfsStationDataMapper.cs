@@ -1,11 +1,6 @@
 ﻿using FunWithGBFS.Application.Stations.Interfaces;
 using FunWithGBFS.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace FunWithGBFS.Infrastructure.Gbfs
 {

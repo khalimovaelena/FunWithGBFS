@@ -1,5 +1,4 @@
-﻿using FunWithGBFS.Application.Game;
-using FunWithGBFS.Application.Stations;
+﻿using FunWithGBFS.Application.Stations;
 using FunWithGBFS.Application.Stations.Interfaces;
 using FunWithGBFS.Application.Users;
 using FunWithGBFS.Application.Users.Interfaces;
@@ -15,11 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FunWithGBFS.Startup
 {

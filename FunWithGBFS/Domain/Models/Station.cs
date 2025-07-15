@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FunWithGBFS.Core.Models
+﻿namespace FunWithGBFS.Core.Models
 {
     //TODO: move to Models folder + separate classes into their own files
     public class Station

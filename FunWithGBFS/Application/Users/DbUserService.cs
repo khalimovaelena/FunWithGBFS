@@ -1,12 +1,6 @@
 ﻿using FunWithGBFS.Application.Users.Interfaces;
 using FunWithGBFS.Core.Models;
 using FunWithGBFS.Persistence.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FunWithGBFS.Application.Users
 {
