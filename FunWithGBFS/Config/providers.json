@@ -1,17 +1,26 @@
 [
   {
-    "Name": "BlueBike_BE",
-    "SourceUrl": "https://api.delijn.be/gbfs/gbfs.json",
+    "Name": "NS OV Fiets",
+    "City": "Netherlands",
+    "SourceUrl": "http://gbfs.openov.nl/ovfiets/gbfs.json",
     "Type": "gbfs"
   },
   {
-    "Name": "Check_Rotterdam",
+    "Name": "Donkey Republic",
+    "City": "Rotterdam",
+    "SourceUrl": "https://stables.donkey.bike/api/public/gbfs/2/donkey_rt/gbfs.json",
+    "Type": "gbfs"
+  },
+  {
+    "Name": "Check",
+    "City": "Rotterdam",
     "SourceUrl": "https://api.ridecheck.app/gbfs/v3/rotterdam/gbfs.json",
     "Type": "gbfs"
   },
   {
-    "Name": "Felyx_Delft",
-    "SourceUrl": "https://maas.zeus.cooltra.com/gbfs/delft/3.0/en/gbfs.json",
+    "Name": "Felyx",
+    "City": "Rotterdam",
+    "SourceUrl": "https://maas.zeus.cooltra.com/gbfs/rotterdam/3.0/en/gbfs.json",
     "Type": "gbfs"
   }
 ]

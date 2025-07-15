@@ -3,7 +3,7 @@ using FunWithGBFS.Core.Models;
 
 namespace FunWithGBFS.Application.Questions
 {
-    public sealed class MaxBikeStationQuestionGenerator: IQuestionGenerator
+    public sealed class MaxVehiclesStationQuestionGenerator: IQuestionGenerator
     {
         private readonly Random _random = new();
 
@@ -17,7 +17,10 @@ namespace FunWithGBFS.Application.Questions
                     CorrectAnswerIndex = 0
                 };
 
-            var topStation = stations.OrderByDescending(s => s.BikesAvailable).First();
+            var allCities = stations.Select(s => s.City).Distinct().ToList();
+            var city = allCities[_random.Next(allCities.Count)];
+
+            var topStation = stations.Where(s => s.City.Equals(city)).OrderByDescending(s => s.BikesAvailable).First();
             var options = new HashSet<string> { topStation.Name };
 
             while (options.Count < optionsCount)
@@ -31,7 +34,7 @@ namespace FunWithGBFS.Application.Questions
 
             return new Question
             {
-                Text = "Which station has the most bikes available?",
+                Text = $"Which station in {city} has the most vehicles available?",
                 Options = optionList,
                 CorrectAnswerIndex = correctIndex
             };

@@ -38,8 +38,8 @@ public class Program
         // 5. Run game
         var questions = new List<IQuestionGenerator>
         {
-            new AverageBikeAvailabilityQuestionGenerator(),
-            new MaxBikeStationQuestionGenerator()
+            new AverageVehicleAvailabilityQuestionGenerator(),
+            new MaxVehiclesStationQuestionGenerator()
         };
 
         var gameSettings = serviceProvider.GetRequiredService<GameSettings>();

@@ -58,7 +58,7 @@ namespace FunWithGBFS.Infrastructure.Gbfs
                 string infoJson = await DownloadRawJson(infoUrl);
                 string statusJson = await DownloadRawJson(statusUrl);
 
-                return _dataMapper.MapStations(infoJson, statusJson);
+                return _dataMapper.MapStations(infoJson, statusJson, provider.City);
             }
             catch (Exception ex)
             {

@@ -1,9 +1,10 @@
 ﻿using FunWithGBFS.Application.Questions.Interfaces;
 using FunWithGBFS.Core.Models;
+using System;
 
 namespace FunWithGBFS.Application.Questions
 {
-    public sealed class AverageBikeAvailabilityQuestionGenerator: IQuestionGenerator
+    public sealed class AverageVehicleAvailabilityQuestionGenerator: IQuestionGenerator
     {
         private readonly Random _random = new();
         private const int _maxOffset = 10; //TODO: config in appsettings
@@ -18,7 +19,10 @@ namespace FunWithGBFS.Application.Questions
                     CorrectAnswerIndex = 0
                 };
 
-            double average = stations.Average(s => s.BikesAvailable);
+            var allCities = stations.Select(s => s.City).Distinct().ToList();
+            var city = allCities[_random.Next(allCities.Count)];
+
+            double average = stations.Where(s => s.City.Equals(city)).Average(s => s.BikesAvailable);
             int roundedAverage = Convert.ToInt32(Math.Round(average));
 
             var options = GenerateOptions(roundedAverage, optionsCount);
@@ -26,7 +30,7 @@ namespace FunWithGBFS.Application.Questions
 
             return new Question
             {
-                Text = "What is the average number of bikes available per station?",
+                Text = $"What is the average number of vehicles available per station in {city}?",
                 Options = options,
                 CorrectAnswerIndex = correctIndex
             };

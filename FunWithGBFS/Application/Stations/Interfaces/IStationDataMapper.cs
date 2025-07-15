@@ -4,6 +4,6 @@ namespace FunWithGBFS.Application.Stations.Interfaces
 {
     public interface IStationDataMapper
     {
-        List<Station> MapStations(string rawInfoJson, string rawStatusJson);
+        List<Station> MapStations(string rawInfoJson, string rawStatusJson, string city);
     }
 }

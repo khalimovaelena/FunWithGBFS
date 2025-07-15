@@ -6,7 +6,7 @@ namespace FunWithGBFS.Infrastructure.Gbfs
 {
     public class GbfsStationDataMapper : IStationDataMapper
     {
-        public List<Station> MapStations(string rawInfoJson, string rawStatusJson)
+        public List<Station> MapStations(string rawInfoJson, string rawStatusJson, string city)
         {
             using var infoDoc = JsonDocument.Parse(rawInfoJson);
             using var statusDoc = JsonDocument.Parse(rawStatusJson);
@@ -31,7 +31,8 @@ namespace FunWithGBFS.Infrastructure.Gbfs
                     Name = stationInfo.GetProperty("name").GetString(),
                     Lat = stationInfo.GetProperty("lat").GetDouble(),
                     Lon = stationInfo.GetProperty("lon").GetDouble(),
-                    BikesAvailable = status.GetProperty("num_bikes_available").GetInt32()
+                    BikesAvailable = status.GetProperty("num_bikes_available").GetInt32(),
+                    City = city,
                 });
             }
 
