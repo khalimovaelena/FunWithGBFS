@@ -1,7 +1,7 @@
 [
   {
     "Name": "NS OV Fiets",
-    "City": "Netherlands",
+    "City": "Rotterdam",
     "SourceUrl": "http://gbfs.openov.nl/ovfiets/gbfs.json",
     "Type": "gbfs"
   },

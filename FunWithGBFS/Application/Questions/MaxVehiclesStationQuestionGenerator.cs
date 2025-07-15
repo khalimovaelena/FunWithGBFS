@@ -3,7 +3,7 @@ using FunWithGBFS.Core.Models;
 
 namespace FunWithGBFS.Application.Questions
 {
-    public sealed class MaxVehiclesStationQuestionGenerator: IQuestionGenerator
+    public sealed class MaxVehiclesStationQuestionGenerator: IQuestionGenerator<Station>
     {
         private readonly Random _random = new();
 
@@ -13,7 +13,7 @@ namespace FunWithGBFS.Application.Questions
                 return new Question
                 {
                     Text = "No stations available to determine max bike station.",
-                    Options = new List<string> { "None", "None", "None", "None" },
+                    Options = new List<string> { "None" },
                     CorrectAnswerIndex = 0
                 };
 
@@ -38,6 +38,11 @@ namespace FunWithGBFS.Application.Questions
                 Options = optionList,
                 CorrectAnswerIndex = correctIndex
             };
+        }
+
+        public Question Generate(object input, int optionsCount)
+        {
+            return Generate((List<Station>)input, optionsCount);
         }
     }
 }

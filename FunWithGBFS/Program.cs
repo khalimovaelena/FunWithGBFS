@@ -4,6 +4,7 @@ using FunWithGBFS.Application.Questions.Interfaces;
 using FunWithGBFS.Application.Stations;
 using FunWithGBFS.Application.Users;
 using FunWithGBFS.Application.Users.Interfaces;
+using FunWithGBFS.Application.Vehicles;
 using FunWithGBFS.Core.Models;
 using FunWithGBFS.Infrastructure.Gbfs;
 using FunWithGBFS.Persistence.Context;
@@ -23,10 +24,14 @@ public class Program
         var db = serviceProvider.GetRequiredService<GameDbContext>();//TODO: separate class
         db.Database.EnsureCreated();
 
-        // 3. Load providers & stations
-        var stationFetch = serviceProvider.GetRequiredService<StationFetchService>();
+        // 3. Load providers, stations & vehicles
         var providers = ProvidersLoader.LoadProviders(config["GameSettings:ProvidersFile"]); //TODO: separate service
+
+        var stationFetch = serviceProvider.GetRequiredService<StationFetchService>();
         var stations = await stationFetch.LoadStationsAsync(providers);
+
+        var vehiclesFetch = serviceProvider.GetRequiredService<VehicleFetchService>();
+        var vehicles = await vehiclesFetch.LoadVehiclesAsync(providers);
 
         // 4. User login/registration
         var userSession = serviceProvider.GetRequiredService<UserSessionService>();
@@ -39,11 +44,12 @@ public class Program
         var questions = new List<IQuestionGenerator>
         {
             new AverageVehicleAvailabilityQuestionGenerator(),
-            new MaxVehiclesStationQuestionGenerator()
+            new MaxVehiclesStationQuestionGenerator(),
+            new VehicleStatsQuestionGenerator(),
         };
 
         var gameSettings = serviceProvider.GetRequiredService<GameSettings>();
-        var game = new GameEngine(questions, stations, gameSettings, interaction);
+        var game = new GameEngine(questions, stations, vehicles, gameSettings, interaction);
         var score = await game.RunGameAsync();
 
         // 6. Save results

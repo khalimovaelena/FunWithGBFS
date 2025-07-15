@@ -4,7 +4,7 @@ using System;
 
 namespace FunWithGBFS.Application.Questions
 {
-    public sealed class AverageVehicleAvailabilityQuestionGenerator: IQuestionGenerator
+    public sealed class AverageVehicleAvailabilityQuestionGenerator: IQuestionGenerator<Station>
     {
         private readonly Random _random = new();
         private const int _maxOffset = 10; //TODO: config in appsettings
@@ -15,7 +15,7 @@ namespace FunWithGBFS.Application.Questions
                 return new Question
                 {
                     Text = "No station data available to calculate average availability.",
-                    Options = new List<string> { "0", "0", "0", "0" },
+                    Options = new List<string> { "None" },
                     CorrectAnswerIndex = 0
                 };
 
@@ -58,6 +58,11 @@ namespace FunWithGBFS.Application.Questions
                 .OrderBy(_ => _random.Next())
                 .Select(o => o.ToString())
                 .ToList();
+        }
+
+        public Question Generate(object input, int optionsCount)
+        {
+            return Generate((List<Station>) input, optionsCount);
         }
     }
 }

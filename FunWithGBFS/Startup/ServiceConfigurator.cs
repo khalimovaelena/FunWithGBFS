@@ -2,6 +2,8 @@
 using FunWithGBFS.Application.Stations.Interfaces;
 using FunWithGBFS.Application.Users;
 using FunWithGBFS.Application.Users.Interfaces;
+using FunWithGBFS.Application.Vehicles;
+using FunWithGBFS.Application.Vehicles.Interfaces;
 using FunWithGBFS.Infrastructure.Gbfs;
 using FunWithGBFS.Infrastructure.Http;
 using FunWithGBFS.Infrastructure.Http.Interfaces;
@@ -39,9 +41,12 @@ namespace FunWithGBFS.Startup
             services.AddScoped<IHttpJsonFetcher, HttpJsonFetcher>();
             services.AddScoped<IStationDataMapper, GbfsStationDataMapper>();
             services.AddScoped<IStationProvider, GbfsStationProvider>();
+            services.AddScoped<IVehicleDataMapper, GbfsVehicleDataMapper>();
+            services.AddScoped<IVehicleProvider, GbfsVehicleProvider>();
             services.AddScoped<IUserInteraction, ConsoleUserInteraction>();
             services.AddScoped<UserSessionService>();
             services.AddScoped<StationFetchService>();
+            services.AddScoped<VehicleFetchService>();
             services.AddHttpClient();
 
             return services.BuildServiceProvider();

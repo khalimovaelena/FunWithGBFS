@@ -4,6 +4,8 @@
     {
         public string Id { get; set; }
         public string Name { get; set; }
+
+        public string ProviderName { get; set; } = default!;
         public double Lat { get; set; }
         public double Lon { get; set; }
         public int BikesAvailable { get; set; }

@@ -1,6 +1,8 @@
 ﻿using FunWithGBFS.Application.Questions.Interfaces;
 using FunWithGBFS.Core.Models;
+using FunWithGBFS.Domain.Models;
 using FunWithGBFS.Presentation.Interfaces;
+using System.Reflection.Emit;
 
 namespace FunWithGBFS.Application.Game
 {
@@ -8,6 +10,7 @@ namespace FunWithGBFS.Application.Game
     {
         private readonly List<IQuestionGenerator> _questions;
         private readonly List<Station> _stations;
+        private readonly List<Vehicle> _vehicles;
         private readonly ScoreManager _scoreManager;
         private readonly GameTimer _gameTimer;
         private readonly GameSettings _gameSettings;
@@ -19,11 +22,13 @@ namespace FunWithGBFS.Application.Game
         public GameEngine(
             List<IQuestionGenerator> questions, 
             List<Station> stations, 
+            List<Vehicle> vehicles,
             GameSettings gameSettings,
             IUserInteraction userInteraction)
         {
             _questions = questions;
             _stations = stations;
+            _vehicles = vehicles;
             _gameSettings = gameSettings;
             _userInteraction = userInteraction;
 
@@ -57,8 +62,12 @@ namespace FunWithGBFS.Application.Game
 
             while (!_timeExpired && questionIndex < _gameSettings.NumberOfQuestions)
             {
-                var generator = _questions[random.Next(_questions.Count)];
-                var question = generator.Generate(_stations, _optionsCount);
+                var question = GenerateRandomQuestion();
+
+                if (question == null || question.Options.Count == 0)
+                {
+                    continue;
+                }
 
                 _userInteraction.ClearScreen();
                 _userInteraction.ShowMessage($"Time remaining: {_gameTimer.RemainingTime} seconds");
@@ -118,6 +127,24 @@ namespace FunWithGBFS.Application.Game
             return _scoreManager.Score;
         }
 
+        private Question GenerateRandomQuestion()
+        {
+            var random = new Random();
+            var randomIndex = random.Next(_questions.Count);
+            var selectedGenerator = _questions[randomIndex];
+
+            if (selectedGenerator is IQuestionGenerator<Station> stationGenerator)
+            {
+                return stationGenerator.Generate(_stations, _optionsCount);
+            }
+            else if (selectedGenerator is IQuestionGenerator<Vehicle> vehicleGenerator)
+            {
+                return vehicleGenerator.Generate(_vehicles, _optionsCount);
+            }
+            //Add your new types of questions here
+
+            return new Question { Text = "Random question" };
+        }
 
         private async Task<string?> ReadLineWithTimeout(CancellationToken token)
         {
