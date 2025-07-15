@@ -14,6 +14,7 @@ namespace FunWithGBFS.Application.Game
         public readonly IUserInteraction _userInteraction;
 
         private bool _timeExpired;
+        private int _optionsCount;
 
         public GameEngine(
             List<IQuestionGenerator> questions, 
@@ -26,6 +27,7 @@ namespace FunWithGBFS.Application.Game
             _gameSettings = gameSettings;
             _userInteraction = userInteraction;
 
+            _optionsCount = _gameSettings.NumberOfOptions;
             _scoreManager = new ScoreManager(_gameSettings.InitialScore);
             _gameTimer = new GameTimer(_gameSettings.GameDurationSeconds, _userInteraction);
 
@@ -56,7 +58,7 @@ namespace FunWithGBFS.Application.Game
             while (!_timeExpired && questionIndex < _gameSettings.NumberOfQuestions)
             {
                 var generator = _questions[random.Next(_questions.Count)];
-                var question = generator.Generate(_stations);
+                var question = generator.Generate(_stations, _optionsCount);
 
                 _userInteraction.ClearScreen();
                 _userInteraction.ShowMessage($"Time remaining: {_gameTimer.RemainingTime} seconds");

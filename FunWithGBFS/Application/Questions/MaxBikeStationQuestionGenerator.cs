@@ -3,13 +3,13 @@ using FunWithGBFS.Core.Models;
 
 namespace FunWithGBFS.Application.Questions
 {
-    public class MaxBikeStationQuestionGenerator: IQuestionGenerator
+    public sealed class MaxBikeStationQuestionGenerator: IQuestionGenerator
     {
         private readonly Random _random = new();
 
-        public Question Generate(List<Station> stations)
+        public Question Generate(List<Station> stations, int optionsCount)
         {
-            if (stations == null || stations.Count == 0)
+            if (stations == null || stations.Count == 0 || stations.Count < optionsCount)
                 return new Question
                 {
                     Text = "No stations available to determine max bike station.",
@@ -20,7 +20,7 @@ namespace FunWithGBFS.Application.Questions
             var topStation = stations.OrderByDescending(s => s.BikesAvailable).First();
             var options = new HashSet<string> { topStation.Name };
 
-            while (options.Count < 4)
+            while (options.Count < optionsCount)
             {
                 var s = stations[_random.Next(stations.Count)].Name;
                 options.Add(s);

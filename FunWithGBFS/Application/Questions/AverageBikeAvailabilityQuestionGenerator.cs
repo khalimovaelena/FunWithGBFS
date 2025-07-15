@@ -3,13 +3,14 @@ using FunWithGBFS.Core.Models;
 
 namespace FunWithGBFS.Application.Questions
 {
-    public class AverageBikeAvailabilityQuestionGenerator: IQuestionGenerator
+    public sealed class AverageBikeAvailabilityQuestionGenerator: IQuestionGenerator
     {
         private readonly Random _random = new();
+        private const int _maxOffset = 10; //TODO: config in appsettings
 
-        public Question Generate(List<Station> stations)
+        public Question Generate(List<Station> stations, int optionsCount)
         {
-            if (stations == null || stations.Count == 0)
+            if (stations == null || stations.Count == 0 || stations.Count < optionsCount)
                 return new Question
                 {
                     Text = "No station data available to calculate average availability.",
@@ -18,9 +19,9 @@ namespace FunWithGBFS.Application.Questions
                 };
 
             double average = stations.Average(s => s.BikesAvailable);
-            int roundedAverage = (int)Math.Round(average);
+            int roundedAverage = Convert.ToInt32(Math.Round(average));
 
-            var options = GenerateOptions(roundedAverage);
+            var options = GenerateOptions(roundedAverage, optionsCount);
             int correctIndex = options.IndexOf(roundedAverage.ToString());
 
             return new Question
@@ -31,15 +32,28 @@ namespace FunWithGBFS.Application.Questions
             };
         }
 
-        private List<string> GenerateOptions(int correct)
+        private List<string> GenerateOptions(int correct, int optionsCount)
         {
             var options = new HashSet<int> { correct };
-            while (options.Count < 4)
+
+            while (options.Count < optionsCount)
             {
-                int offset = _random.Next(1, 10);
-                options.Add(correct + offset * (_random.Next(2) == 0 ? -1 : 1));
+                int offset = _random.Next(1, _maxOffset + 1); // 1 to maxOffset
+                bool add = _random.NextDouble() < 0.5;// Randomly decide to add or subtract the offset
+                int candidate = add ? correct + offset : correct - offset;
+
+                if (candidate < 0)
+                {
+                    continue; // Avoid negative bike counts
+                }
+
+                options.Add(candidate);
             }
-            return options.Select(o => o.ToString()).OrderBy(_ => _random.Next()).ToList();
+
+            return options
+                .OrderBy(_ => _random.Next())
+                .Select(o => o.ToString())
+                .ToList();
         }
     }
 }
