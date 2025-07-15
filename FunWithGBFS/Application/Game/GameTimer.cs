@@ -9,33 +9,49 @@ namespace FunWithGBFS.Application.Game
 {
     public class GameTimer
     {
+        //TODO: add flag that timer is running to prevent starting the same timer multiple times
         private readonly int _durationInSeconds;
         private readonly IUserInteraction _userInteraction;
 
-        public int RemainingTime { get; private set; }
-        private readonly CancellationTokenSource _cts = new();
+        private int _remainingTime;
+        public int RemainingTime => Volatile.Read(ref _remainingTime);
+        private CancellationTokenSource _cts;
 
         public event Action TimeExpired;
+        //TODO: add event TimeTicked so UI can update the remaining time on display
 
         public GameTimer(int durationInSeconds, IUserInteraction userInteraction)
         {
             _durationInSeconds = durationInSeconds;
             _userInteraction = userInteraction ?? throw new ArgumentNullException(nameof(userInteraction));
 
-            RemainingTime = durationInSeconds;  // Initialize the remaining time with the duration
+            _remainingTime = durationInSeconds;  // Initialize the remaining time with the duration
         }
 
         public async Task StartAsync()
         {
             try
             {
-                while (RemainingTime > 0)
+                if (_cts == null)
+                { 
+                    _cts = new CancellationTokenSource();
+                }
+
+                if (_remainingTime <= 0)
+                {
+                    Interlocked.Exchange(ref _remainingTime, _durationInSeconds);
+                }
+
+                while (_remainingTime > 0)
                 {
                     if (_cts.Token.IsCancellationRequested)
+                    {
                         return;
+                    }
 
-                    await Task.Delay(1000); // No cancellation token — we check manually
-                    RemainingTime--;
+                    // No cancellation token in Delay — we check manually to avoid throwing an exception when the timer is cancelled, because it's normal behavior and not and exception
+                    await Task.Delay(1000);
+                    Interlocked.Decrement(ref _remainingTime);
                 }
 
                 if (!_cts.Token.IsCancellationRequested)
@@ -51,12 +67,16 @@ namespace FunWithGBFS.Application.Game
 
         public void Stop()
         {
-            _cts.Cancel();  // Manually stop the timer
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
         }
 
         public void Reset()
         {
-            RemainingTime = _durationInSeconds;  // Reset the timer to the initial duration
+            Stop();
+            _cts = new CancellationTokenSource();
+            Interlocked.Exchange(ref _remainingTime, _durationInSeconds);  // Reset the timer to the initial duration
         }
     }
 }
