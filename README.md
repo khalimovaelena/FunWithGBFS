@@ -39,7 +39,7 @@ dotnet run
 Configuration is handled via [appsettings.json](https://github.com/khalimovaelena/FunWithGBFS/blob/main/FunWithGBFS/Config/appsettings.json) . Ensure the GBFS URLs are valid and accessible.
 
 ## Architecture Overview and Rationale
-I chose Clean architecture principles for this project to ensure that solution is scalable, maintanable, testable and will be easy to improve in the future.
+I was trying to stick to Clean architecture principles for this project to ensure that solution is scalable, maintanable, testable and will be easy to improve in the future.
 Architecture layers and classes related to them are shown in the picture below:
 ![Architecture](./Images/FunWithGBFS_Architecture.jpg)
 
