@@ -87,7 +87,7 @@ Configuration is handled via [appsettings.json](https://github.com/khalimovaelen
 	- Mobile apps
 	- Chatbot interactions
 - Allow multiple clients to connect concurrently (multiplayer mode)
-(\* Right now concurrency is achieved by running multiple instances of the console app)
+*(\* Right now concurrency is achieved by running multiple instances of the console app)**
 
 ### 3. Store Questions in a Database
 - Save every generated question and user response
@@ -107,7 +107,7 @@ Configuration is handled via [appsettings.json](https://github.com/khalimovaelen
 - Logic will dynamically read and apply these parameters (from DB ot json) without code changes > this will allow to create new questions without code changes
 
 ### 5. Persistent Storage 
-- Replace in-memory storage with a real DB (PostgreSQL, SQLite)
+- Replace SQLLite with full-featured DB (PostgreSQL, Oracle, MS SQL)
 
 ### 6. More Unit Tests 
 - Add tests for GameEngine, Data Providers etc
