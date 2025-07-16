@@ -1,9 +1,10 @@
 ﻿using FunWithGBFS.Application.Users.Interfaces;
-using FunWithGBFS.Core.Models;
+using FunWithGBFS.Domain.Models;
 using FunWithGBFS.Presentation.Interfaces;
 
 namespace FunWithGBFS.Application.Users
 {
+    //TODO: add interface for this service
     public class UserSessionService
     {
         private readonly IUserService _userService;

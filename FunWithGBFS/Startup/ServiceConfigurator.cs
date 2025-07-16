@@ -1,4 +1,6 @@
-﻿using FunWithGBFS.Application.Stations;
+﻿using FunWithGBFS.Application.Game;
+using FunWithGBFS.Application.Game.Interfaces;
+using FunWithGBFS.Application.Stations;
 using FunWithGBFS.Application.Stations.Interfaces;
 using FunWithGBFS.Application.Users;
 using FunWithGBFS.Application.Users.Interfaces;
@@ -44,6 +46,7 @@ namespace FunWithGBFS.Startup
             services.AddScoped<IVehicleDataMapper, GbfsVehicleDataMapper>();
             services.AddScoped<IVehicleProvider, GbfsVehicleProvider>();
             services.AddScoped<IUserInteraction, ConsoleUserInteraction>();
+            services.AddScoped<IGameTimer, GameTimer>();
             services.AddScoped<UserSessionService>();
             services.AddScoped<StationFetchService>();
             services.AddScoped<VehicleFetchService>();

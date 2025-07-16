@@ -1,4 +1,4 @@
-﻿using FunWithGBFS.Core.Models;
+﻿using FunWithGBFS.Domain.Models;
 
 namespace FunWithGBFS.Application.Stations.Interfaces
 {

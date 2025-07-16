@@ -1,11 +1,12 @@
 ﻿using FunWithGBFS.Application.Game;
+using FunWithGBFS.Application.Game.Interfaces;
 using FunWithGBFS.Application.Questions;
 using FunWithGBFS.Application.Questions.Interfaces;
 using FunWithGBFS.Application.Stations;
 using FunWithGBFS.Application.Users;
 using FunWithGBFS.Application.Users.Interfaces;
 using FunWithGBFS.Application.Vehicles;
-using FunWithGBFS.Core.Models;
+using FunWithGBFS.Domain.Models;
 using FunWithGBFS.Infrastructure.Gbfs;
 using FunWithGBFS.Persistence.Context;
 using FunWithGBFS.Presentation.Interfaces;
@@ -49,7 +50,8 @@ public class Program
         };
 
         var gameSettings = serviceProvider.GetRequiredService<GameSettings>();
-        var game = new GameEngine(questions, stations, vehicles, gameSettings, interaction);
+        var gameTimer = serviceProvider.GetRequiredService<IGameTimer>();
+        var game = new GameEngine(questions, stations, vehicles, gameSettings, interaction, gameTimer);
         var score = await game.RunGameAsync();
 
         // 6. Save results

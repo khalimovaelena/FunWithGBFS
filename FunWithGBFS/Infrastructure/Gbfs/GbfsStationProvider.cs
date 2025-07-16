@@ -1,5 +1,5 @@
 ﻿using FunWithGBFS.Application.Stations.Interfaces;
-using FunWithGBFS.Core.Models;
+using FunWithGBFS.Domain.Models;
 using FunWithGBFS.Infrastructure.Http.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;

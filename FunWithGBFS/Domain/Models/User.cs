@@ -1,4 +1,4 @@
-﻿namespace FunWithGBFS.Core.Models
+﻿namespace FunWithGBFS.Domain.Models
 {
     public class User
     {

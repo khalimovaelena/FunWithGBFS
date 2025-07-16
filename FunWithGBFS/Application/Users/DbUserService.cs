@@ -1,5 +1,5 @@
 ﻿using FunWithGBFS.Application.Users.Interfaces;
-using FunWithGBFS.Core.Models;
+using FunWithGBFS.Domain.Models;
 using FunWithGBFS.Persistence.Repository.Interfaces;
 
 namespace FunWithGBFS.Application.Users

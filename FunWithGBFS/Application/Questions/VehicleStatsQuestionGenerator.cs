@@ -1,5 +1,4 @@
 ﻿using FunWithGBFS.Application.Questions.Interfaces;
-using FunWithGBFS.Core.Models;
 using FunWithGBFS.Domain.Models;
 
 namespace FunWithGBFS.Application.Questions
@@ -7,6 +6,8 @@ namespace FunWithGBFS.Application.Questions
     public class VehicleStatsQuestionGenerator : IQuestionGenerator<Vehicle>
     {
         private readonly Random _random = new();
+        private const string DisabledQuestionText = "Which provider has the most number of disabled vehicles currently?";
+        private const string ReservedQuestionText = "Which provider has the most vehicles currently reserved?";
 
         public Question Generate(List<Vehicle> vehicles, int optionsCount)
         {
@@ -23,14 +24,17 @@ namespace FunWithGBFS.Application.Questions
             // 50/50 between reserved and disabled
             bool askAboutDisabled = _random.Next(2) == 0;
 
-            if (askAboutDisabled)
-            {
-                return GenerateDisabledVehicleQuestion(vehicles);
-            }
-            else
-            {
-                return GenerateReservedVehicleQuestion(vehicles);
-            }
+            return askAboutDisabled
+                ? GenerateStatsQuestion(
+                    vehicles,
+                    v => v.IsDisabled,
+                    DisabledQuestionText,
+                    optionsCount)
+                : GenerateStatsQuestion(
+                    vehicles,
+                    v => v.IsReserved,
+                    ReservedQuestionText,
+                    optionsCount);
         }
 
         public Question Generate(object input, int optionsCount)
@@ -38,12 +42,14 @@ namespace FunWithGBFS.Application.Questions
             return Generate((List<Vehicle>)input, optionsCount);
         }
 
-        private Question GenerateDisabledVehicleQuestion(List<Vehicle> vehicles)
+        private Question GenerateStatsQuestion(
+            List<Vehicle> vehicles,
+            Func<Vehicle, bool> predicate,
+            string questionText,
+            int optionsCount)
         {
-            const string questionDisabledText = "Which provider has the most number of disabled vehicles currently?";
-
             var grouped = vehicles
-                .Where(v => v.IsDisabled)
+                .Where(predicate)
                 .GroupBy(v => v.ProviderName)
                 .Select(g => new { Provider = g.Key, Count = g.Count() })
                 .OrderByDescending(x => x.Count)
@@ -53,7 +59,7 @@ namespace FunWithGBFS.Application.Questions
             {
                 return new Question
                 {
-                    Text = questionDisabledText,
+                    Text = questionText,
                     Options = new List<string> { "None" },
                     CorrectAnswerIndex = 0
                 };
@@ -62,11 +68,13 @@ namespace FunWithGBFS.Application.Questions
             var correct = grouped.First();
 
             var options = grouped
-                .OrderBy(_ => _random.Next()) // Shuffle before taking
-                .Take(3)
+                .OrderBy(_ => _random.Next()) // Shuffle
+                .Take(optionsCount)
                 .Select(g => g.Provider)
+                .Distinct()
                 .ToList();
 
+            // Ensure the correct answer is present
             if (!options.Contains(correct.Provider))
             {
                 options[_random.Next(options.Count)] = correct.Provider;
@@ -76,50 +84,7 @@ namespace FunWithGBFS.Application.Questions
 
             return new Question
             {
-                Text = questionDisabledText,
-                Options = options,
-                CorrectAnswerIndex = correctIndex
-            };
-        }
-
-        private Question GenerateReservedVehicleQuestion(List<Vehicle> vehicles)
-        {
-            const string questionReservedText = "Which provider has the most vehicles currently reserved?";
-            var grouped = vehicles
-                .Where(v => v.IsReserved)
-                .GroupBy(v => v.ProviderName)
-                .Select(g => new { Provider = g.Key, Count = g.Count() })
-                .OrderByDescending(x => x.Count)
-                .ToList();
-
-            if (grouped.Count == 0)
-            {
-                return new Question
-                {
-                    Text = questionReservedText,
-                    Options = new List<string> { "None" },
-                    CorrectAnswerIndex = 0
-                };
-            }
-
-            var correct = grouped.First();
-
-            var options = grouped
-                .OrderBy(_ => _random.Next())
-                .Take(3)
-                .Select(g => g.Provider)
-                .ToList();
-
-            if (!options.Contains(correct.Provider))
-            {
-                options[_random.Next(options.Count)] = correct.Provider;
-            }
-
-            var correctIndex = options.IndexOf(correct.Provider);
-
-            return new Question
-            {
-                Text = questionReservedText,
+                Text = questionText,
                 Options = options,
                 CorrectAnswerIndex = correctIndex
             };

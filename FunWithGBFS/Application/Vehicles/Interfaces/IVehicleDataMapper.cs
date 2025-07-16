@@ -1,5 +1,4 @@
-﻿using FunWithGBFS.Core.Models;
-using FunWithGBFS.Domain.Models;
+﻿using FunWithGBFS.Domain.Models;
 
 namespace FunWithGBFS.Application.Vehicles.Interfaces
 {

@@ -1,8 +1,7 @@
-﻿using FunWithGBFS.Application.Questions.Interfaces;
-using FunWithGBFS.Core.Models;
+﻿using FunWithGBFS.Application.Game.Interfaces;
+using FunWithGBFS.Application.Questions.Interfaces;
 using FunWithGBFS.Domain.Models;
 using FunWithGBFS.Presentation.Interfaces;
-using System.Reflection.Emit;
 
 namespace FunWithGBFS.Application.Game
 {
@@ -12,7 +11,7 @@ namespace FunWithGBFS.Application.Game
         private readonly List<Station> _stations;
         private readonly List<Vehicle> _vehicles;
         private readonly ScoreManager _scoreManager;
-        private readonly GameTimer _gameTimer;
+        private readonly IGameTimer _gameTimer;
         private readonly GameSettings _gameSettings;
         public readonly IUserInteraction _userInteraction;
 
@@ -24,7 +23,8 @@ namespace FunWithGBFS.Application.Game
             List<Station> stations, 
             List<Vehicle> vehicles,
             GameSettings gameSettings,
-            IUserInteraction userInteraction)
+            IUserInteraction userInteraction,
+            IGameTimer timer)
         {
             _questions = questions;
             _stations = stations;
@@ -34,7 +34,7 @@ namespace FunWithGBFS.Application.Game
 
             _optionsCount = _gameSettings.NumberOfOptions;
             _scoreManager = new ScoreManager(_gameSettings.InitialScore);
-            _gameTimer = new GameTimer(_gameSettings.GameDurationSeconds, _userInteraction);
+            _gameTimer = timer;
 
             // Subscribe to the timer's expiration event
             _gameTimer.TimeExpired += OnTimeExpired;

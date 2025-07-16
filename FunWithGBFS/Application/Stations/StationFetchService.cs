@@ -1,9 +1,10 @@
 ﻿using FunWithGBFS.Application.Stations.Interfaces;
-using FunWithGBFS.Core.Models;
+using FunWithGBFS.Domain.Models;
 using FunWithGBFS.Presentation.Interfaces;
 
 namespace FunWithGBFS.Application.Stations
 {
+    //TODO: add interface for this service
     public class StationFetchService
     {
         private readonly IStationProvider _stationProvider;

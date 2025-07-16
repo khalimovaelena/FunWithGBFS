@@ -1,6 +1,5 @@
 ﻿using FunWithGBFS.Application.Questions.Interfaces;
-using FunWithGBFS.Core.Models;
-using System;
+using FunWithGBFS.Domain.Models;
 
 namespace FunWithGBFS.Application.Questions
 {

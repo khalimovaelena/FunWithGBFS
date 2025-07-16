@@ -1,4 +1,4 @@
-﻿using FunWithGBFS.Core.Models;
+﻿using FunWithGBFS.Domain.Models;
 using FunWithGBFS.Persistence.Context;
 using FunWithGBFS.Persistence.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;

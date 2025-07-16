@@ -1,5 +1,6 @@
 ﻿namespace FunWithGBFS.Application.Game
 {
+    //TODO: use interface to be able to change logic of calculating score in the future
     public class ScoreManager
     {
         public int Score { get; private set; }

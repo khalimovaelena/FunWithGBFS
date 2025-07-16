@@ -1,12 +1,12 @@
 ﻿using FunWithGBFS.Application.Game.Interfaces;
-using FunWithGBFS.Presentation.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace FunWithGBFS.Application.Game
 {
     public class GameTimer : IGameTimer
     {
         private readonly int _durationInSeconds;
-        private readonly IUserInteraction _userInteraction;
+        private readonly ILogger<IGameTimer> _logger;
         private readonly object _lock = new();
 
         private int _remainingTime;
@@ -18,11 +18,11 @@ namespace FunWithGBFS.Application.Game
         public event Action TimeExpired;
         public event Action<int> TimeTicked;
 
-        public GameTimer(int durationInSeconds, IUserInteraction userInteraction)
+        public GameTimer(GameSettings gameSettings, ILogger<IGameTimer> logger)
         {
-            _durationInSeconds = durationInSeconds;
-            _userInteraction = userInteraction ?? throw new ArgumentNullException(nameof(userInteraction));
-            _remainingTime = durationInSeconds;
+            _durationInSeconds = gameSettings.GameDurationSeconds;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _remainingTime = _durationInSeconds;
         }
 
         public async Task StartAsync()
@@ -68,7 +68,7 @@ namespace FunWithGBFS.Application.Game
             }
             catch (Exception ex)
             {
-                _userInteraction.ShowError($"Error in timer: {ex.Message}");
+                _logger.LogError($"Error in timer: {ex.Message}");
             }
             finally
             {

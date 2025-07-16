@@ -1,5 +1,5 @@
 ﻿using FunWithGBFS.Application.Stations.Interfaces;
-using FunWithGBFS.Core.Models;
+using FunWithGBFS.Domain.Models;
 using System.Text.Json;
 
 namespace FunWithGBFS.Infrastructure.Gbfs
