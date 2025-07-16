@@ -49,7 +49,7 @@ At the same time Presentation layer is separated from game logic, which will all
 
 ### Application Layer
 
-#### Game logic
+#### 1. Game logic
 Contains the main game logic (GameEngine), necessary settings (GameSettings), asynchronous timer (GameTimer) and ScoreManager for tracking user scores.
 GameTimer allows to start one async timer per game (console) instance, which allows to run multiple games concurrently in different console windows.
 Main game settings are configurable via appsettings.json and GameSettings class that allows to change game parameters without code changes.
