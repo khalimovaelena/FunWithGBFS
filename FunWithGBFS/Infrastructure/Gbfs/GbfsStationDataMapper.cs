@@ -8,64 +8,61 @@ namespace FunWithGBFS.Infrastructure.Gbfs
     {
         public List<Station> MapStations(string rawInfoJson, string rawStatusJson, Provider provider)
         {
-            using var infoDoc = JsonDocument.Parse(rawInfoJson);
-            using var statusDoc = JsonDocument.Parse(rawStatusJson);
-
-            var infoStations = ExtractStationList(infoDoc);
-            var statusStations = ExtractStationList(statusDoc);
-
-            var statusDict = statusStations
-                .EnumerateArray()
-                .ToDictionary(s => s.GetProperty("station_id").GetString());
-
-            var stations = new List<Station>();
-
-            foreach (var stationInfo in infoStations.EnumerateArray())
+            try
             {
-                var stationId = stationInfo.GetProperty("station_id").GetString();
-                statusDict.TryGetValue(stationId, out var status);
+                using var infoDoc = JsonDocument.Parse(rawInfoJson);
 
-                stations.Add(new Station
+                JsonDocument statusDoc = null;
+                Dictionary<string, JsonElement> statusDict = new();
+
+                try
                 {
-                    Id = stationId,
-                    Name = stationInfo.GetProperty("name").GetString(),
-                    ProviderName = provider.Name,
-                    Lat = stationInfo.GetProperty("lat").GetDouble(),
-                    Lon = stationInfo.GetProperty("lon").GetDouble(),
-                    BikesAvailable = status.GetProperty("num_bikes_available").GetInt32(),
-                    City = provider.City,
-                });
-            }
-
-            return stations;
-        }
-
-        private JsonElement ExtractStationInfo(JsonDocument doc)
-        {
-            var root = doc.RootElement;
-
-            if (root.TryGetProperty("data", out var dataElement))
-            {
-                // Check if the value is an object with a language-layer (e.g., "en")
-                if (dataElement.ValueKind == JsonValueKind.Object)
+                    statusDoc = JsonDocument.Parse(rawStatusJson);
+                    var statusStations = ExtractStationList(statusDoc);
+                    statusDict = statusStations
+                        .EnumerateArray()
+                        .ToDictionary(
+                            s => s.GetProperty("station_id").GetString(),
+                            s => s
+                        );
+                }
+                catch
                 {
-                    // If it's nested under a language key
-                    var firstValue = dataElement.EnumerateObject().FirstOrDefault().Value;
+                    statusDict = new();// statusDict remains empty
+                }
 
-                    if (firstValue.TryGetProperty("feeds", out var feeds))
+                var infoStations = ExtractStationList(infoDoc);
+                var stations = new List<Station>();
+
+                foreach (var stationInfo in infoStations.EnumerateArray())
+                {
+                    var stationId = stationInfo.GetProperty("station_id").GetString();
+                    statusDict.TryGetValue(stationId, out var status);
+
+                    int bikesAvailable = 0;
+                    if (status.ValueKind == JsonValueKind.Object && status.TryGetProperty("num_bikes_available", out var bikesProp))
                     {
-                        return feeds;
+                        bikesAvailable = bikesProp.GetInt32();
                     }
+
+                    stations.Add(new Station
+                    {
+                        Id = stationId,
+                        Name = stationInfo.GetProperty("name").GetString(),
+                        ProviderName = provider.Name,
+                        Lat = stationInfo.GetProperty("lat").GetDouble(),
+                        Lon = stationInfo.GetProperty("lon").GetDouble(),
+                        BikesAvailable = bikesAvailable,
+                        City = provider.City,
+                    });
                 }
 
-                // If it's flat structure
-                if (dataElement.TryGetProperty("feeds", out var feedsDirect))
-                {
-                    return feedsDirect;
-                }
+                return stations;
             }
-
-            throw new InvalidOperationException("Invalid GBFS structure for station info");
+            catch
+            {
+                return new List<Station>();
+            }
         }
 
         private JsonElement ExtractStationList(JsonDocument doc)

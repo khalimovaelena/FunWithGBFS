@@ -70,7 +70,7 @@ namespace FunWithGBFSUnitTests
 
             await Task.WhenAll(task1, task2);
 
-            Assert.InRange(tickCount, 3, 4); // Should tick 3 times, possibly 4 if timing is loose
+            Assert.Equal(3, tickCount); // Should tick 3 times
         }
     }
 }

@@ -43,10 +43,14 @@ namespace FunWithGBFS.Infrastructure.Gbfs
                     var url = feed.GetProperty("url").GetString();
 
                     if (name == "station_information")
+                    {
                         infoUrl = url;
+                    }
 
                     if (name == "station_status")
+                    {
                         statusUrl = url;
+                    }
                 }
 
                 if (string.IsNullOrEmpty(infoUrl) || string.IsNullOrEmpty(statusUrl))
