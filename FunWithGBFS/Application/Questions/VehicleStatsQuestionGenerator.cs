@@ -3,11 +3,16 @@ using FunWithGBFS.Domain.Models;
 
 namespace FunWithGBFS.Application.Questions
 {
-    public class VehicleStatsQuestionGenerator : IQuestionGenerator<Vehicle>
+    public sealed class VehicleStatsQuestionGenerator : IQuestionGenerator<Vehicle>
     {
-        private readonly Random _random = new();
+        private readonly Random _random;
         private const string DisabledQuestionText = "Which provider has the most number of disabled vehicles currently?";
         private const string ReservedQuestionText = "Which provider has the most vehicles currently reserved?";
+
+        public VehicleStatsQuestionGenerator(Random random = null)
+        {
+            _random = random ?? new Random(); // If no Random is provided, use the default one
+        }
 
         public Question Generate(List<Vehicle> vehicles, int optionsCount)
         {
