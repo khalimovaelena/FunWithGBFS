@@ -44,8 +44,8 @@ Architecture layers and classes related to them are shown in the picture below:
 ![Architecture](./Images/FunWithGBFS_Architecture.jpg)
 
 ### Presentation Layer
-I chose Console terminal as default user interface, because it doesn't require any additional setup and external dependencies.
-At the same time Presentation layer is separated from game logic, which will allow to change UI in the future to Web, Mobile, or API-based UI (that can be used by chatbots).
+I chose Console terminal as default user interface, because it is simple and doesn't require any additional setup and external dependencies.
+At the same time Presentation layer is separated from the game logic, which allows changing UI in the future to Web, Mobile, or API-based UI (that can be used by chatbots).
 
 ### Application Layer
 
@@ -57,11 +57,10 @@ Main game settings are configurable via appsettings.json and GameSettings class 
 #### 2. Question generation
 Contains general interface IQuestionGenerator that allows to generate different kinds of questions and add them to the game without changing much in the code.
 To add new question, just implement IQuestionGenerator interface and add it to Program.cs.
-Right now all questions are hardcoded (each question is represented by a class that implements IQuestionGenerator). This architecture was chosen to be able to easy and quickly implement questions without complicated logic, which should be enough for test project.
-I described  desired (for production) architecture of questions generators in Future Improvements section below.
+Right now all questions are hardcoded (each question is represented by a class that implements IQuestionGenerator). This makes the implementation simple and should be enough for the test project. It is possible to make the implementation more flexible and scalable by extracting the hardcoded questions and their processing rules to an app configuration, which is described a bit more in the Future Improvements section below.
 
 #### 3. Startup and Dependency Injection
-Application configuration and dependency injection are separated from Program.cs into separate classes (AppConfigurator and ServiceConfigurator classes).
+Application configuration and dependency injection handling is separated from Program.cs into AppConfigurator and ServiceConfigurator classes to decouple it from the game logic.
 
 ### Infrastructure Layer
 
@@ -69,11 +68,11 @@ Application configuration and dependency injection are separated from Program.cs
 Use HttpClient to fetch live GBFS data from public bike-sharing systems via REST APIs.
 
 #### Data Mappers
-Translate deserealized JSON provided by related provider directly to internal models (Station, Vehicle, etc.) that can be used in question generators to create questions and options.
+Translate deserealized JSON provided by respective provider directly to internal models (Station, Vehicle, etc.) that can be used in question generators to create questions and options.
 
 ### Persistence Layer
 Contains GameDBContext and Repositories (currently only UserRepository) to store data. 
-As this is test project and it doesn't need to store big amounts of complicated data, SQLLite DB should be enough. It is a lightweight database that can be instanciated on the app run, but for production uses it can be replaced with full-featured DB like PostgreSQL, Oracle or MS SQL.
+As this is a test project and it doesn't need to have sophisticated data storing or processing, SQLLite DB should be sufficient for the task. It is a lightweight database that can be instantiated on the app startup. For production uses it can be replaced with full-featured DB like PostgreSQL, Oracle, MS SQL, etc.
 
 ### Domain Layer
 Contains domain models (Station, Vehicle, Question, Option) that represent the core data structures used in the game. 
@@ -81,7 +80,6 @@ Contains domain models (Station, Vehicle, Question, Option) that represent the c
 ### Logging
 Microsoft.Extensions.Logging package is used for logging throughout the application. 
 It provides a standardized way to log messages and errors without using external dependencies and doesn't need extra configuration.
-For production, we might need to add audit logs and information for analytics, performance tracking and users investigations. 
 
 ## Future Improvements
 ### 1. Token Authentication for Users
@@ -95,36 +93,33 @@ For production, we might need to add audit logs and information for analytics, p
 	- Web apps
 	- Mobile apps
 	- Chatbot interactions
-- Allow multiple clients to connect concurrently (multiplayer mode)
+- Add full concurrent mode support to allow users to use one instance of the app in multiplayer mode.
 *(\* Right now concurrency is achieved by running multiple instances of the console app)**
 
-### 3. Store Questions in a Database
-- Save every generated question and user response
-- Enable auditing, performance tracking, and analytics
-- Useful for teachers, researchers, and competitive leaderboards
+### 3. Improved logging and audit
+For production it might require more detailed audit logs, for example, to be able to trace the data objects mutations for issues investigations or audit or analytics reports. 
 
 ### 4. Question Generating Platform
-- Create a table in DB or JSON configuration (or any other type of structure that can contain parameters) to define question generation rules
-- Parameters might include:
-	- Location (city/region)
-	- Question text
-	- Question type (single/multiple choice, true/false etc))
-	- Data input type (station/vehicle etc)
-	- Thresholds (what to calculate: min/max/avg etc)
-	- Which fields in external API relate to which data of the question (where to read number of bikes, disabled/reserved bikes etc from)
-
-Basic logic will be coded: 
-- how to calculate Thresholds (max, min, average values etc) 
-- how to generate options for single/multiple choice questions
-
-Then game admins will be able to add parameters for new questions without code changes.
-Game logic will dynamically read and apply these parameters (from DB or json) to generate new questions.
+To eliminate hardcoded questions text and make the questions generation part more flexible and scalable, the way that it can be a configuration that can be updated without the app release, the following changes can be implemented:
+	- Store question texts/templates in database. This will allow to update them without a code change (an admin UI could be used for this in future).
+ 	- Define question generation rules: every rule might be described by a set of parameters, e.g.:
+		- Location (city/region)
+		- Question text
+		- Question type (single/multiple choice, true/false etc))
+		- Data input type (station/vehicle etc)
+		- Thresholds (what to calculate: min/max/avg etc)
+		- Mapping of external APIs attributes to a question's data (where to read number of bikes, disabled/reserved bikes etc from)
+	- Some basic logic will be still coded but can be re-used in different rules, e.g.: 
+		- how to calculate Thresholds (max, min, average values etc) 
+		- how to generate options for single/multiple choice questions
+As a result, game admins will be able to update rules without code changes and Game logic will dynamically read and apply these rules to generate new questions.
+This approach implies more sophisticated implementation and will require to cover more edge cases which is out of the scope of this assignment. 
 
 ### 5. Persistent Storage 
 - Replace SQLLite with full-featured DB (PostgreSQL, Oracle, MS SQL) to be able to create users roles (admin/player), store statistics and provide more advance analytics.
 
 ### 6. More Unit Tests 
-- Add tests for GameEngine, Data Providers etc
+- Add tests for GameEngine, Data Providers etc.
 
 ### 7. Multiplayer Support 
 - Implement real-time multiplayer quiz sessions
@@ -136,7 +131,7 @@ Game logic will dynamically read and apply these parameters (from DB or json) to
 - For adding rules, managing questions, or viewing game statistics
 
 ### 10. More fun features for gamers
-- Leaderboards, achievements, and social sharing
+- Leaderboards, achievements and social sharing
 - Profile customization and user settings
 - Perks for top players (e.g., discounts on bike rentals, etc.)
 - Nice UI and voiceover for questions and answers
