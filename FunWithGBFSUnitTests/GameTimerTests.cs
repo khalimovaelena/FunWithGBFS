@@ -1,13 +1,10 @@
+using FunWithGBFS.Application.Game;
+using FunWithGBFS.Application.Game.Interfaces;
+using Microsoft.Extensions.Logging;
+using Moq;
+
 namespace FunWithGBFSUnitTests
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using FunWithGBFS.Application.Game;
-    using FunWithGBFS.Application.Game.Interfaces;
-    using Microsoft.Extensions.Logging;
-    using Moq;
-    using Xunit;
-
     public class GameTimerTests
     {
         private readonly Mock<ILogger<IGameTimer>> _loggerMock = new();
