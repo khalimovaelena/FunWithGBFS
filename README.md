@@ -38,41 +38,50 @@ dotnet run
 
 Configuration is handled via [appsettings.json](https://github.com/khalimovaelena/FunWithGBFS/blob/main/FunWithGBFS/Config/appsettings.json) . Ensure the GBFS URLs are valid and accessible.
 
-## Architecture Overview
+## Architecture Overview and Rationale
+I chose Clean architecture principles for this project to ensure that solution is scalable, maintanable, testable and will be easy to improve in the future.
+Architecture layers and classes related to them are shown in the picture below:
+![Architecture](./Images/FunWithGBFS_Architecture.jpg)
 
-### User Interface
-- Console app as the default UI
-- Separated from game logic to enable future Web, Mobile, or API-based UIs
+### Presentation Layer
+I chose Console terminal as default user interface, because it doesn't require any additional setup and external dependencies.
+At the same time Presentation layer is separated from game logic, which will allow to change UI in the future to Web, Mobile, or API-based UI (that can be used by chatbots).
 
-### Game Engine
-- Coordinates quiz flow: question generation, timer, score tracking, and result handling
+### Application Layer
 
-### Question Generation
-- Uses GBFS station and vehicle data to produce quiz questions
-- Implemented via IQuestionGenerator interface for easy extension
+#### Game logic
+Contains the main game logic (GameEngine), necessary settings (GameSettings), asynchronous timer (GameTimer) and ScoreManager for tracking user scores.
+GameTimer allows to start one async timer per game (console) instance, which allows to run multiple games concurrently in different console windows.
+Main game settings are configurable via appsettings.json and GameSettings class that allows to change game parameters without code changes.
 
-### Data Providers
-- Interfaces like IStationProvider and IVehicleProvider abstract GBFS fetching
-- Data fetched using HttpClient and parsed as JSON
+#### 2. Question generation
+Contains general interface IQuestionGenerator that allows to generate different kinds of questions and add them to the game without changing much in the code.
+To add new question, just implement IQuestionGenerator interface and add it to Program.cs.
+Right now all questions are hardcoded (each question is represented by a class that implements IQuestionGenerator). This architecture was chosen to be able to easy and quickly implement questions without complicated logic, which should be enough for test project.
+I described  desired (for production) architecture of questions generators in Future Improvements section below.
 
-### Mappers
-- Translate GBFS feed JSON directly to internal models (Station, Vehicle, etc.)
+#### 3. Startup and Dependency Injection
+Application configuration and dependency injection are separated from Program.cs into separate classes (AppConfigurator and ServiceConfigurator classes).
+
+### Infrastructure Layer
+
+#### Data Providers
+Use HttpClient to fetch live GBFS data from public bike-sharing systems via REST APIs.
+
+#### Data Mappers
+Translate deserealized JSON provided by related provider directly to internal models (Station, Vehicle, etc.) that can be used in question generators to create questions and options.
+
+### Persistence Layer
+Contains GameDBContext and Repositories (currently only UserRepository) to store data. 
+As this is test project and it doesn't need to store big amounts of complicated data, SQLLite DB should be enough. It is a lightweight database that can be instanciated on the app run, but for production uses it can be replaced with full-featured DB like PostgreSQL, Oracle or MS SQL.
+
+### Domain Layer
+Contains domain models (Station, Vehicle, Question, Option) that represent the core data structures used in the game. 
 
 ### Logging
-- All output is handled via ILogger or IUserInteraction
-
-### Timer
-- GameTimer handles async countdowns with cancellation and tick/expiration events
-
-## Tech Stack and Rationale
-| Component        | Choice                       | Rationale                                                   |
-|------------------|------------------------------|-------------------------------------------------------------|
-| Runtime          | .NET 8                       | Modern, cross-platform, high-performance, great async model |
-| Language         | C#                           | Object oriented, strong typing, async-friendly              |
-| UI               | Console App                  | Lightweight, easy to prototype and test                     |
-| Logging          | Microsoft.Extensions.Logging | Standardized, pluggable logging abstraction                 |
-| Data Fetching    | HttpClient + System.Text.Json| Fast, low-overhead, ideal for JSON APIs                     |
-| Architecture     | DI, Interfaces, Async/Await  | Promotes testability, flexibility, and clean separation     |
+Microsoft.Extensions.Logging package is used for logging throughout the application. 
+It provides a standardized way to log messages and errors without using external dependencies and doesn't need extra configuration.
+For production, we might need to add audit logs and information for analytics, performance tracking and users investigations. 
 
 ## Future Improvements
 ### 1. Token Authentication for Users
@@ -94,20 +103,25 @@ Configuration is handled via [appsettings.json](https://github.com/khalimovaelen
 - Enable auditing, performance tracking, and analytics
 - Useful for teachers, researchers, and competitive leaderboards
 
-### 4. Parameter-Driven Question Generating Platform
-- Create a table in DB or JSON configuration to define question-generation rules
-- Parameters include:
+### 4. Question Generating Platform
+- Create a table in DB or JSON configuration (or any other type of structure that can contain parameters) to define question generation rules
+- Parameters might include:
 	- Location (city/region)
 	- Question text
 	- Question type (single/multiple choice, true/false etc))
 	- Data input type (station/vehicle etc)
 	- Thresholds (what to calculate: min/max/avg etc)
 	- Which fields in external API relate to which data of the question (where to read number of bikes, disabled/reserved bikes etc from)
-- Code basics of the logic: how to calculate Thresholds and how to generate options for single/multiple choice questions
-- Logic will dynamically read and apply these parameters (from DB ot json) without code changes > this will allow to create new questions without code changes
+
+Basic logic will be coded: 
+- how to calculate Thresholds (max, min, average values etc) 
+- how to generate options for single/multiple choice questions
+
+Then game admins will be able to add parameters for new questions without code changes.
+Game logic will dynamically read and apply these parameters (from DB or json) to generate new questions.
 
 ### 5. Persistent Storage 
-- Replace SQLLite with full-featured DB (PostgreSQL, Oracle, MS SQL)
+- Replace SQLLite with full-featured DB (PostgreSQL, Oracle, MS SQL) to be able to create users roles (admin/player), store statistics and provide more advance analytics.
 
 ### 6. More Unit Tests 
 - Add tests for GameEngine, Data Providers etc
