@@ -140,3 +140,12 @@ Game logic will dynamically read and apply these parameters (from DB or json) to
 - Profile customization and user settings
 - Perks for top players (e.g., discounts on bike rentals, etc.)
 - Nice UI and voiceover for questions and answers
+
+## New Features implemented:
+1. You start with below 0 scrore (-50/-100) and if you reach 0, you have level 1, and if you not reach 0, you loose.
+1. If you answer 2 questions wrong, you loose.
+
+## Suggestions for improvement:
+1. For production Model can store more logic, then Application layer can be thinner.
+1. Exception handling is too advanced, bugs might be hidden because of that. We can remove unnecessary try/catch blocks.
+1. GameEngine has too many if-else, we can move conditions for ending the game to separate class.

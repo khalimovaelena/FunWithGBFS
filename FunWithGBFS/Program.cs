@@ -51,7 +51,7 @@ public class Program
 
         var gameSettings = serviceProvider.GetRequiredService<GameSettings>();
         var gameTimer = serviceProvider.GetRequiredService<IGameTimer>();
-        var game = new GameEngine(questions, stations, vehicles, gameSettings, interaction, gameTimer);
+        var game = new GameEngine(questions, stations, vehicles, gameSettings, interaction, gameTimer, user);
         var score = await game.RunGameAsync();
 
         // 6. Save results

@@ -14,6 +14,7 @@ namespace FunWithGBFS.Application.Game
         private readonly IGameTimer _gameTimer;
         private readonly GameSettings _gameSettings;
         public readonly IUserInteraction _userInteraction;
+        private readonly User _user;
 
         private bool _timeExpired;
         private int _optionsCount;
@@ -24,13 +25,15 @@ namespace FunWithGBFS.Application.Game
             List<Vehicle> vehicles,
             GameSettings gameSettings,
             IUserInteraction userInteraction,
-            IGameTimer timer)
+            IGameTimer timer,
+            User user)
         {
             _questions = questions;
             _stations = stations;
             _vehicles = vehicles;
             _gameSettings = gameSettings;
             _userInteraction = userInteraction;
+            _user = user ?? throw new ArgumentNullException(nameof(user));
 
             _optionsCount = _gameSettings.NumberOfOptions;
             _scoreManager = new ScoreManager(_gameSettings.InitialScore);
@@ -101,17 +104,34 @@ namespace FunWithGBFS.Application.Game
                     else
                     {
                         _scoreManager.SubtractPoints(_gameSettings.PointsPerWrongAnswer);
+                        _scoreManager.AddWrongAnswer();
                     }
                 }
 
-                if (_scoreManager.Score <= 0)
+                if (_scoreManager.NumberOfWrongAnswers >= 2)
                 {
-                    _userInteraction.ShowMessage("Game Over: You lost all your points.");
+                    _userInteraction.ShowMessage("You have made too many wrong answers. Game over.");
                     _gameTimer.Stop(); // Stop the timer early
                     break;
                 }
 
+                if (_scoreManager.Score > 0)
+                {
+                    _user.Level++;
+                }
+
                 questionIndex++;
+            }
+
+            if (_user.Level > 0)
+            {
+                _userInteraction.ShowMessage("Congrats! You won the game!");
+                _gameTimer.Stop(); // Stop the timer early
+            }
+            else
+            {
+                _userInteraction.ShowMessage("Sorry! You have not reached Level 1, you lost the game");
+                _gameTimer.Stop(); // Stop the timer early
             }
 
             if (questionIndex >= _gameSettings.NumberOfQuestions && !_timeExpired)

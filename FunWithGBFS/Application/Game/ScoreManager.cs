@@ -4,6 +4,7 @@
     public class ScoreManager
     {
         public int Score { get; private set; }
+        public int NumberOfWrongAnswers { get; private set; } = 0;
 
         public event Action<int> ScoreUpdated; //TODO: do we need it?
 
@@ -22,6 +23,11 @@
         {
             Score -= points;
             ScoreUpdated?.Invoke(Score);
+        }
+
+        public void AddWrongAnswer()
+        {
+            NumberOfWrongAnswers++;
         }
     }
 }
